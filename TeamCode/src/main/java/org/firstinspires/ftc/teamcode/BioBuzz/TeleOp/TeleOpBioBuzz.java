@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.BioBuzz.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.BioBuzz.TeleOp.EditionMode.Edition;
+import org.firstinspires.ftc.teamcode.BioBuzz.utils.packageImport;
 
 @TeleOp(name = "Test Edition Mode", group = "TeleOp")
 public class TeleOpBioBuzz extends LinearOpMode {
 
     // 1. Instanciation de votre classe Edition
     private Edition edition = new Edition();
+    private packageImport robotComposant = new packageImport();
 
     @Override
     public void runOpMode() {
@@ -29,7 +31,12 @@ public class TeleOpBioBuzz extends LinearOpMode {
             boolean isEditing = edition.isEditionModeActive();
 
             // Exemple : Utiliser la valeur pour un servo ou un moteur
-            // servo.setPosition(currentValue);
+            if(gamepad1.a){
+
+                robotComposant.leftDrive.setPower(currentValue);
+                robotComposant.rightDrive.setPower(currentValue);
+
+            }
 
             // Affichage sur le Driver Station pour le débogage
             telemetry.addData("Mode Édition Actif", isEditing);
