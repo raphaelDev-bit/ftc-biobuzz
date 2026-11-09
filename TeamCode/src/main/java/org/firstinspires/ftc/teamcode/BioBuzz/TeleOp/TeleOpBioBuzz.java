@@ -41,10 +41,14 @@ public class TeleOpBioBuzz extends LinearOpMode {
             else if(gamepad1.left_trigger_pressed){
                 robotComposant.intakeMotor.setPower(currentValue);
             }
+            else if(gamepad1.right_trigger_pressed){
+                robotComposant.launcherMotor.setPower(5.0);
+            }
             else{
                 robotComposant.rightDrive.setPower(0.0);
                 robotComposant.leftDrive.setPower(0.0);
-                
+                robotComposant.intakeMotor.setPower(0.0);
+                robotComposant.launcherMotor.setPower(0.0);
             }
 
             // Affichage sur le Driver Station pour le débogage
