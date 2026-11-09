@@ -25,7 +25,7 @@ public class TeleOpBioBuzz extends LinearOpMode {
             // - gamepad1 : la manette à écouter
             // - gamepad1.a : le bouton 'A' active/désactive le mode édition
             // - 0.05 : le pas d'incrémentation (ajustez selon vos besoins)
-            edition.EditionMode(gamepad1, gamepad1.a, 0.05);
+            edition.EditionMode(gamepad1, gamepad1.b, 0.05);
 
             // 3. Récupération de la valeur et de l'état pour les utiliser ou les afficher
             double currentValue = edition.getValue();
@@ -37,6 +37,14 @@ public class TeleOpBioBuzz extends LinearOpMode {
                 robotComposant.leftDrive.setPower(currentValue);
                 robotComposant.rightDrive.setPower(currentValue);
 
+            }
+            else if(gamepad1.left_trigger_pressed){
+                robotComposant.intakeMotor.setPower(currentValue);
+            }
+            else{
+                robotComposant.rightDrive.setPower(0.0);
+                robotComposant.leftDrive.setPower(0.0);
+                
             }
 
             // Affichage sur le Driver Station pour le débogage
