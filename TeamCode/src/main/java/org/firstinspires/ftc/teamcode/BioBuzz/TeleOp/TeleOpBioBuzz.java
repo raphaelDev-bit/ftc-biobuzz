@@ -29,7 +29,6 @@ public class TeleOpBioBuzz extends LinearOpMode {
 
             // 3. Récupération de la valeur et de l'état pour les utiliser ou les afficher
             double currentValue = edition.getValue();
-            double basicValue = 1.0;
             boolean isEditing = edition.isEditionModeActive();
 
             // Exemple : Utiliser la valeur pour un servo ou un moteur

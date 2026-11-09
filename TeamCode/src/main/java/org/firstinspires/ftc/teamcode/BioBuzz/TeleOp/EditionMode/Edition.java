@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 public class Edition {
 
     private double value = 0.0;
+    private double basicValue = 1.0;
     private boolean EditionModeActive = false;
     private boolean ancienStateButton = false;
 
@@ -43,6 +44,9 @@ public class Edition {
     }
 
     public double getValue(){
+        if(value == 0.0){
+            value = basicValue;
+        }
         return value;
     }
 
