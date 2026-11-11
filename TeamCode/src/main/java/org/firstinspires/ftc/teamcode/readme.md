@@ -1,131 +1,90 @@
-## TeamCode Module
+# BioBuzz — code du robot FTC
 
-Welcome!
+Ce dossier contient le code personnalisé de l’équipe BioBuzz pour un robot **FIRST Tech Challenge (FTC)**. Le projet est une application Android basée sur le SDK FTC, avec les modules `FtcRobotController` et `TeamCode`.
 
-This module, TeamCode, is the place where you will write/paste the code for your team's
-robot controller App. This module is currently empty (a clean slate) but the
-process for adding OpModes is straightforward.
+> Le code de l’équipe se trouve dans `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/BioBuzz/`.
 
-## Creating your own OpModes
+## OpModes disponibles
 
-The easiest way to create your own OpMode is to copy a Sample OpMode and make it your own.
+### `Test Edition Mode` — téléopération
 
-Sample opmodes exist in the FtcRobotController module.
-To locate these samples, find the FtcRobotController module in the "Project/Android" tab.
+Fichier : `TeleOp/TeleOpBioBuzz.java`
 
-Expand the following tree elements:
- FtcRobotController/java/org.firstinspires.ftc.robotcontroller/external/samples
+OpMode principal pour piloter le robot avec `gamepad1` :
 
-### Naming of Samples
+| Commande | Fonction |
+| --- | --- |
+| Joystick gauche | Conduite : avant/arrière et rotation |
+| `B` | Active ou désactive le réglage de la puissance de conduite |
+| `X` | Active ou désactive le réglage de la puissance de l’intake |
+| `Y` | Active ou désactive le réglage de la puissance du launcher |
+| D-pad haut/bas | Augmente ou diminue la valeur du réglage sélectionné, par pas de `0.20` |
+| Gâchette gauche | Actionne l’intake lorsque la pression dépasse `0.3` |
+| Gâchette droite | Actionne le launcher lorsque la pression dépasse `0.3` |
 
-To gain a better understanding of how the samples are organized, and how to interpret the
-naming system, it will help to understand the conventions that were used during their creation.
+Les valeurs de départ définies dans le code sont `1.0` pour la conduite, `0.5` pour l’intake et `4.0` pour le launcher. Vérifiez et ajustez ces valeurs sur le robot avant utilisation : les puissances moteur FTC sont normalement limitées à l’intervalle `[-1.0, 1.0]`. La télémétrie affiche les valeurs et l’état des modes de réglage.
 
-These conventions are described (in detail) in the sample_conventions.md file in this folder.
+### `OpMode V1 BioBuzz` — test du capteur de couleur
 
-To summarize: A range of different samples classes will reside in the java/external/samples.
-The class names will follow a naming convention which indicates the purpose of each class.
-The prefix of the name will be one of the following:
+Fichier : `Autonomus/autonomus.java`
 
-Basic:  	This is a minimally functional OpMode used to illustrate the skeleton/structure
-            of a particular style of OpMode.  These are bare bones examples.
+Malgré le nom du dossier, cette classe est actuellement annotée comme un **TeleOp** (`@TeleOp`). Elle lit le capteur `RevColorSensorV3`, affiche les valeurs RGB normalisées et la distance en centimètres, et indique si la couleur détectée semble jaune. L’intake est activé pendant l’exécution de cet OpMode.
 
-Sensor:    	This is a Sample OpMode that shows how to use a specific sensor.
-            It is not intended to drive a functioning robot, it is simply showing the minimal code
-            required to read and display the sensor values.
+### `TeleOpInitializerAndStart`
 
-Robot:	    This is a Sample OpMode that assumes a simple two-motor (differential) drive base.
-            It may be used to provide a common baseline driving OpMode, or
-            to demonstrate how a particular sensor or concept can be used to navigate.
+OpMode de base qui initialise les moteurs et attend le démarrage. Il ne contient pas encore de logique de conduite.
 
-Concept:	This is a sample OpMode that illustrates performing a specific function or concept.
-            These may be complex, but their operation should be explained clearly in the comments,
-            or the comments should reference an external doc, guide or tutorial.
-            Each OpMode should try to only demonstrate a single concept so they are easy to
-            locate based on their name.  These OpModes may not produce a drivable robot.
+## Structure du code
 
-After the prefix, other conventions will apply:
-
-* Sensor class names are constructed as:    Sensor - Company - Type
-* Robot class names are constructed as:     Robot - Mode - Action - OpModetype
-* Concept class names are constructed as:   Concept - Topic - OpModetype
-
-Once you are familiar with the range of samples available, you can choose one to be the
-basis for your own robot.  In all cases, the desired sample(s) needs to be copied into
-your TeamCode module to be used.
-
-This is done inside Android Studio directly, using the following steps:
-
- 1) Locate the desired sample class in the Project/Android tree.
-
- 2) Right click on the sample class and select "Copy"
-
- 3) Expand the  TeamCode/java folder
-
- 4) Right click on the org.firstinspires.ftc.teamcode folder and select "Paste"
-
- 5) You will be prompted for a class name for the copy.
-    Choose something meaningful based on the purpose of this class.
-    Start with a capital letter, and remember that there may be more similar classes later.
-
-Once your copy has been created, you should prepare it for use on your robot.
-This is done by adjusting the OpMode's name, and enabling it to be displayed on the
-Driver Station's OpMode list.
-
-Each OpMode sample class begins with several lines of code like the ones shown below:
-
-```
- @TeleOp(name="Template: Linear OpMode", group="Linear Opmode")
- @Disabled
+```text
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/BioBuzz/
+├── Autonomus/
+│   └── autonomus.java              # Test du capteur de couleur
+├── TeleOp/
+│   ├── TeleOpBioBuzz.java          # Téléopération principale
+│   ├── TeleOpInitializerAndStart.java
+│   ├── EditionMode/
+│   │   └── Edition.java            # Réglage des puissances depuis le gamepad
+│   └── Motors/
+│       └── Drives.java             # Aide de conduite moteur
+└── utils/
+    ├── packageImport.java          # Récupération et configuration du matériel
+    └── powerTime.java              # Fonction utilitaire de commande moteur temporisée
 ```
 
-The name that will appear on the driver station's "opmode list" is defined by the code:
- ``name="Template: Linear OpMode"``
-You can change what appears between the quotes to better describe your opmode.
-The "group=" portion of the code can be used to help organize your list of OpModes.
+## Configuration matérielle
 
-As shown, the current OpMode will NOT appear on the driver station's OpMode list because of the
-  ``@Disabled`` annotation which has been included.
-This line can simply be deleted , or commented out, to make the OpMode visible.
+Les noms ci-dessous doivent correspondre exactement à ceux déclarés dans la configuration du Robot Controller :
 
+| Nom configuré | Type attendu | Utilisation |
+| --- | --- | --- |
+| `left_drive` | `DcMotor` | Moteur gauche de la transmission |
+| `right_drive` | `DcMotor` | Moteur droit de la transmission |
+| `intake` | `DcMotor` | Intake |
+| `launcher` | `DcMotor` | Launcher |
+| `windmill` | `CRServo` | Servo continu |
+| `color_sensor` | `RevColorSensorV3` | Capteur de couleur utilisé par `autonomus` |
 
+`packageImport.importMovementMotor()` récupère les moteurs et le servo continu. Le moteur gauche est configuré en direction `FORWARD` et le moteur droit en direction `REVERSE`. Le capteur `color_sensor` est récupéré séparément par l’OpMode de test couleur.
 
-## ADVANCED Multi-Team App management:  Cloning the TeamCode Module
+## Compiler et lancer
 
-In some situations, you have multiple teams in your club and you want them to all share
-a common code organization, with each being able to *see* the others code but each having
-their own team module with their own code that they maintain themselves.
+1. Cloner le dépôt et l’ouvrir dans Android Studio comme projet Gradle.
+2. Laisser Android Studio synchroniser Gradle et télécharger les dépendances nécessaires.
+3. Vérifier la configuration matérielle sur le Robot Controller, notamment les noms des appareils ci-dessus.
+4. Connecter le Driver Station au Robot Controller et déployer/lancer l’application FTC depuis Android Studio.
+5. Sélectionner l’OpMode souhaité dans la liste du Driver Station.
 
-In this situation, you might wish to clone the TeamCode module, once for each of these teams.
-Each of the clones would then appear along side each other in the Android Studio module list,
-together with the FtcRobotController module (and the original TeamCode module).
+Le dépôt inclut le wrapper Gradle (`gradlew` et `gradlew.bat`). Les dépendances du SDK FTC déclarées dans `build.dependencies.gradle` sont en version `12.0.0`.
 
-Selective Team phones can then be programmed by selecting the desired Module from the pulldown list
-prior to clicking to the green Run arrow.
+## Sécurité et essais
 
-Warning:  This is not for the inexperienced Software developer.
-You will need to be comfortable with File manipulations and managing Android Studio Modules.
-These changes are performed OUTSIDE of Android Studios, so close Android Studios before you do this.
- 
-Also.. Make a full project backup before you start this :)
+- Surélever ou immobiliser le robot lors des premiers essais des moteurs et du launcher.
+- Vérifier le sens de rotation des moteurs, le comportement des gâchettes et les valeurs de puissance avant de poser le robot au sol.
+- Le servo continu `windmill` reçoit actuellement une puissance constante de `1.0` dans `TeleOpBioBuzz` ; vérifiez que ce comportement est voulu avant d’utiliser cet OpMode.
+- L’OpMode de test couleur fait tourner l’intake et attend une seconde entre les lectures. Tester sans pièce ou mécanisme susceptible de se coincer.
 
-To clone TeamCode, do the following:
+## Références
 
-Note: Some names start with "Team" and others start with "team".  This is intentional.
-
-1)  Using your operating system file management tools, copy the whole "TeamCode"
-    folder to a sibling folder with a corresponding new name, eg: "Team0417".
-
-2)  In the new Team0417 folder, delete the TeamCode.iml file.
-
-3)  the new Team0417 folder, rename the "src/main/java/org/firstinspires/ftc/teamcode" folder
-    to a matching name with a lowercase 'team' eg:  "team0417".
-
-4)  In the new Team0417/src/main folder, edit the "AndroidManifest.xml" file, change the line that contains
-         package="org.firstinspires.ftc.teamcode"
-    to be
-         package="org.firstinspires.ftc.team0417"
-
-5)  Add:    include ':Team0417' to the "/settings.gradle" file.
-    
-6)  Open up Android Studios and clean out any old files by using the menu to "Build/Clean Project""
+- [Documentation FTC](https://ftc-docs.firstinspires.org/)
+- [FIRST Tech Challenge](https://www.firstinspires.org/robotics/ftc)
