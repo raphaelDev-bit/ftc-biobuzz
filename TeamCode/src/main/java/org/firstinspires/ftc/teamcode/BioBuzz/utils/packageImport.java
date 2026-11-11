@@ -18,11 +18,14 @@ public class packageImport {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
-        windmillServo = hardwareMap.get(Servo.class, "windmill");
         launcherMotor = hardwareMap.get(DcMotor.class, "launcher");
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+
+
 
 
 

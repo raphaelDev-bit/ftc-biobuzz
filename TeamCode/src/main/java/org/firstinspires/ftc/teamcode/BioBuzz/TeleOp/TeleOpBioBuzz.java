@@ -24,35 +24,49 @@ public class TeleOpBioBuzz extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // 2. Gestion de l'édition pour chaque moteur avec un bouton distinct :
-            // - Bouton B pour le châssis (Drive)
-            // - Bouton X pour l'Intake
-            // - Bouton Y pour le Launcher
+            // Récupération des joysticks
+            float left_stick_y = gamepad1.left_stick_y;
+            float right_stick_y = gamepad1.right_stick_y;
+
+            // Gestion du mode édition (avec les boutons B, X, Y)
             driveEdition.EditionMode(gamepad1, gamepad1.b, 0.20);
             intakeEdition.EditionMode(gamepad1, gamepad1.x, 0.20);
             launcherEdition.EditionMode(gamepad1, gamepad1.y, 0.20);
 
-            // 3. Récupération des valeurs propres à chaque objet
+            // Récupération des valeurs d'édition
             double driveValue = driveEdition.getValue();
             double intakeValue = intakeEdition.getValue();
             double launcherValue = launcherEdition.getValue();
 
-            // Exemple d'utilisation dans les commandes du robot
-            if(gamepad1.a){
+            // --- 1. CONTRÔLE DES MOTEURS DE CONDUITE (Tank Drive avec le mode édition) ---
+            // On vérifie si on touche aux joysticks de conduite
+            if (Math.abs(left_stick_y) > 0.1 || Math.abs(right_stick_y) > 0.1) {
+                // CORRIGÉ : Ajout du '*', du '-' pour inverser, et suppression des tirets parasites
+                robotComposant.leftDrive.setPower(-left_stick_y * driveValue);
+                robotComposant.rightDrive.setPower(-right_stick_y * driveValue);
+            }
+            // Si on appuie sur le bouton A (autre mode de mouvement si besoin)
+            else if (gamepad1.a) {
                 robotComposant.leftDrive.setPower(driveValue);
                 robotComposant.rightDrive.setPower(driveValue);
             }
-            else if(gamepad1.left_trigger > 0.3){
-                robotComposant.intakeMotor.setPower(intakeValue);
-            }
-            else if(gamepad1.right_trigger > 0.3){
-                // Utilisation de launcherValue au lieu d'une valeur fixe
-                robotComposant.launcherMotor.setPower(launcherValue);
-            }
-            else{
-                robotComposant.rightDrive.setPower(0.0);
+            // Sinon, on arrête la conduite
+            else {
                 robotComposant.leftDrive.setPower(0.0);
+                robotComposant.rightDrive.setPower(0.0);
+            }
+
+            // --- 2. CONTRÔLE DE L'INTAKE (Indépendant de la conduite) ---
+            if (gamepad1.left_trigger > 0.3) {
+                robotComposant.intakeMotor.setPower(intakeValue);
+            } else {
                 robotComposant.intakeMotor.setPower(0.0);
+            }
+
+            // --- 3. CONTRÔLE DU LAUNCHER (Indépendant de la conduite) ---
+            if (gamepad1.right_trigger > 0.3) {
+                robotComposant.launcherMotor.setPower(launcherValue);
+            } else {
                 robotComposant.launcherMotor.setPower(0.0);
             }
 
