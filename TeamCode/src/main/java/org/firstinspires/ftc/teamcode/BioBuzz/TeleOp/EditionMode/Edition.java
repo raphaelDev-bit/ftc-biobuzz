@@ -4,15 +4,19 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class Edition {
 
-    private double value = 0.0;
-    private double basicValue = 1.0;
+    private double value; // Modifié : plus initialisé à 0.0 par défaut ici
+    private double basicValue;
     private boolean EditionModeActive = false;
     private boolean ancienStateButton = false;
 
-    // NOUVEAU : Variable pour mémoriser l'état précédent du D-pad haut
     private boolean ancienDpadUp = false;
-    // NOUVEAU : Variable pour mémoriser l'état précédent du D-pad bas
     private boolean ancienDpadDown = false;
+
+    // NOUVEAU (v2) : Constructeur pour définir une valeur de base personnalisée par moteur
+    public Edition(double initialBasicValue) {
+        this.basicValue = initialBasicValue;
+        this.value = 0.0; // Sera initialisé à basicValue au premier appel de getValue()
+    }
 
     public void EditionMode(Gamepad gamepad, boolean stateButton, double pas){
 
@@ -26,19 +30,19 @@ public class Edition {
 
         if(EditionModeActive){
 
-            // NOUVEAU : Détection du "clic unique" sur D-pad Haut
+            // Détection du "clic unique" sur D-pad Haut
             boolean clickDpadUp = gamepad.dpad_up && !ancienDpadUp;
             ancienDpadUp = gamepad.dpad_up;
 
-            // NOUVEAU : Détection du "clic unique" sur D-pad Bas
+            // Détection du "clic unique" sur D-pad Bas
             boolean clickDpadDown = gamepad.dpad_down && !ancienDpadDown;
             ancienDpadDown = gamepad.dpad_down;
 
             if(clickDpadUp){
-                value += pas; // N'augmente qu'une seule fois par appui
+                value += pas; // Augmente d'un pas
             }
             else if(clickDpadDown){
-                value -= pas; // N'diminue qu'une seule fois par appui
+                value -= pas; // Diminue d'un pas
             }
         }
     }
