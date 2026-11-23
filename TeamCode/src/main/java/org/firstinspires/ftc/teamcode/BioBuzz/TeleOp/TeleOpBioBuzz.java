@@ -71,24 +71,30 @@ public class TeleOpBioBuzz extends LinearOpMode {
             } else {
                 robotComposant.launcherMotor.setPower(0.0);
             }
+            if(gamepad1.dpad_left){
+                robotComposant.windmillServo.setPower(0.5);
+            }
 
 
 
             robotComposant.intakeServoRight.setPower(0.5);
             robotComposant.intakeServoLeft.setPower(-0.5);
-            robotComposant.windmillServo.setPower(0.5);
-            //remettre les servos à leur position initiale si nécessaire
 
 
 
-            telemetry.addData("Drive [B] (Actif: " + driveEdition.isEditionModeActive() + ")", driveValue);
-            telemetry.addData("Intake [X] (Actif: " + intakeEdition.isEditionModeActive() + ")", intakeValue);
-            telemetry.addData("Launcher [Y] (Actif: " + launcherEdition.isEditionModeActive() + ")", launcherValue);
-            telemetry.addLine("Joystick Gauche = Conduite | B/X/Y + D-pad = Réglages");
-            telemetry.addLine("leftDrive & rightDrive -> Joystick Gauche (X/Y) | Edit: [B]");
-            telemetry.addLine("intakeMotor -> Gachette Gauche (left_trigger) | Edit: [X]");
-            telemetry.addLine("launcherMotor -> Gachette Droite (right_trigger) | Edit: [Y]");
-            telemetry.addLine("intakeServoRight, intakeServoLeft, windmillServo -> Auto (pas de bouton)");
+
+            // --- MENU TELEMETRY PRO ---
+            telemetry.addLine("=== BIOBUZZ TELEOP | EDITION & MAPPAGE ===");
+            telemetry.addData("Drive [B] " + (driveEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Stick G (X/Y)", driveValue);
+            telemetry.addData("Intake [X] " + (intakeEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Gachette G (LT) [%s]", intakeValue, gamepad1.left_trigger > 0.3 ? "ON" : "OFF");
+            telemetry.addData("Launcher [Y] " + (launcherEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Gachette D (RT) [%s]", launcherValue, gamepad1.right_trigger > 0.3 ? "ON" : "OFF");
+
+            telemetry.addLine("--- Moteurs & Servos ---");
+            telemetry.addLine("leftDrive / rightDrive : Stick G (X/Y) | Edit: [B]");
+            telemetry.addLine("intakeMotor            : Gachette G (LT)  | Edit: [X]");
+            telemetry.addLine("launcherMotor          : Gachette D (RT)  | Edit: [Y]");
+            telemetry.addLine("intakeServoL/R + windm.: Continu auto (aucun bouton)");
+            telemetry.addLine("Ajustement valeur      : D-Pad Haut / Bas");
             telemetry.update();
         }
     }
