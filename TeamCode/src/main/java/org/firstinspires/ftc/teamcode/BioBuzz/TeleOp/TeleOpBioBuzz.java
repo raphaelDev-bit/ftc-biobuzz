@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.BioBuzz.utils.packageImport;
 public class TeleOpBioBuzz extends LinearOpMode {
 
     // 1. Vos trois objets Edition avec leurs valeurs de base respectives
-    private Edition driveEdition = new Edition(1.0);
+    private Edition driveEdition = new Edition(0.5);
     private Edition intakeEdition = new Edition(0.5);
     private Edition launcherEdition = new Edition(4.0);
 
@@ -23,6 +23,9 @@ public class TeleOpBioBuzz extends LinearOpMode {
 
         robotComposant.leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robotComposant.rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
 
         teleologMessage("Statut", "Prêt");
         waitForStart();
@@ -43,7 +46,7 @@ public class TeleOpBioBuzz extends LinearOpMode {
             double intakeValue = intakeEdition.getValue();
             double launcherValue = launcherEdition.getValue();
 
-            // --- 1. CONTRÔLE DE LA CONDUITE (Joystick unique + Mode Édition) ---
+
             if (Math.abs(left_stick_y) > 0.1 || Math.abs(left_stick_x) > 0.1) {
                 double powerLeft  = (-left_stick_y + left_stick_x) * driveValue;
                 double powerRight = (-left_stick_y - left_stick_x) * driveValue;
@@ -55,30 +58,37 @@ public class TeleOpBioBuzz extends LinearOpMode {
                 robotComposant.leftDrive.setPower(0.0);
             }
 
-            // --- 2. CONTRÔLE DE L'INTAKE (Gâchette gauche) ---
+            // --- 2. CONTRÔLE DE L'INTAKE MOTEUR (Gâchette gauche) ---
             if (gamepad1.left_trigger > 0.3) {
-                robotComposant.intakeMotor.setPower(intakeValue);
+                robotComposant.intakeMotor.setPower(5);
             } else {
                 robotComposant.intakeMotor.setPower(0.0);
             }
 
-            // --- 3. CONTRÔLE DU LAUNCHER (Gâchette droite) ---
+
             if (gamepad1.right_trigger > 0.3) {
                 robotComposant.launcherMotor.setPower(launcherValue);
             } else {
                 robotComposant.launcherMotor.setPower(0.0);
             }
 
-            
-            robotComposant.windmillServo.setPower(1.0);
+
+
+            robotComposant.intakeServoRight.setPower(0.5);
+            robotComposant.intakeServoLeft.setPower(-0.5);
+            robotComposant.windmillServo.setPower(0.5);
+            //remettre les servos à leur position initiale si nécessaire
 
 
 
-            // Affichage sur le Driver Station pour suivre les réglages en direct
             telemetry.addData("Drive [B] (Actif: " + driveEdition.isEditionModeActive() + ")", driveValue);
             telemetry.addData("Intake [X] (Actif: " + intakeEdition.isEditionModeActive() + ")", intakeValue);
             telemetry.addData("Launcher [Y] (Actif: " + launcherEdition.isEditionModeActive() + ")", launcherValue);
             telemetry.addLine("Joystick Gauche = Conduite | B/X/Y + D-pad = Réglages");
+            telemetry.addLine("leftDrive & rightDrive -> Joystick Gauche (X/Y) | Edit: [B]");
+            telemetry.addLine("intakeMotor -> Gachette Gauche (left_trigger) | Edit: [X]");
+            telemetry.addLine("launcherMotor -> Gachette Droite (right_trigger) | Edit: [Y]");
+            telemetry.addLine("intakeServoRight, intakeServoLeft, windmillServo -> Auto (pas de bouton)");
             telemetry.update();
         }
     }
