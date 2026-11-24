@@ -12,7 +12,7 @@ public class TeleOpBioBuzz extends LinearOpMode {
     // 1. Vos trois objets Edition avec leurs valeurs de base respectives
     private Edition driveEdition = new Edition(0.5);
     private Edition intakeEdition = new Edition(0.5);
-    private Edition launcherEdition = new Edition(4.0);
+    private Edition launcherEdition = new Edition(5.0);
 
     private packageImport robotComposant = new packageImport();
 
@@ -32,9 +32,9 @@ public class TeleOpBioBuzz extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // Récupération du joystick gauche (Y pour avancer/reculer, X pour tourner)
+            // Joystick gauche : avancer/reculer ; joystick droit : tourner
             float left_stick_y = gamepad1.left_stick_y;
-            float left_stick_x = gamepad1.left_stick_x;
+            float right_stick_x = gamepad1.right_stick_x;
 
             // Gestion du mode édition (avec les boutons B, X, Y)
             driveEdition.EditionMode(gamepad1, gamepad1.b, 0.20);
@@ -47,9 +47,9 @@ public class TeleOpBioBuzz extends LinearOpMode {
             double launcherValue = launcherEdition.getValue();
 
 
-            if (Math.abs(left_stick_y) > 0.1 || Math.abs(left_stick_x) > 0.1) {
-                double powerLeft  = (-left_stick_y + left_stick_x) * driveValue;
-                double powerRight = (-left_stick_y - left_stick_x) * driveValue;
+            if (Math.abs(left_stick_y) > 0.1 || Math.abs(right_stick_x) > 0.1) {
+                double powerLeft  = (-left_stick_y + right_stick_x) * driveValue;
+                double powerRight = (-left_stick_y - right_stick_x) * driveValue;
 
                 robotComposant.leftDrive.setPower(powerLeft);
                 robotComposant.rightDrive.setPower(powerRight);
@@ -73,9 +73,9 @@ public class TeleOpBioBuzz extends LinearOpMode {
             }
             if(gamepad1.dpad_left){
                 robotComposant.windmillServo.setPower(0.5);
+            }else{
+                robotComposant.windmillServo.setPower(0.0);
             }
-
-
 
             robotComposant.intakeServoRight.setPower(0.5);
             robotComposant.intakeServoLeft.setPower(-0.5);
@@ -85,12 +85,12 @@ public class TeleOpBioBuzz extends LinearOpMode {
 
             // --- MENU TELEMETRY PRO ---
             telemetry.addLine("=== BIOBUZZ TELEOP | EDITION & MAPPAGE ===");
-            telemetry.addData("Drive [B] " + (driveEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Stick G (X/Y)", driveValue);
+            telemetry.addData("Drive [B] " + (driveEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Stick G (Y) + Stick D (X)", driveValue);
             telemetry.addData("Intake [X] " + (intakeEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Gachette G (LT) [%s]", intakeValue, gamepad1.left_trigger > 0.3 ? "ON" : "OFF");
             telemetry.addData("Launcher [Y] " + (launcherEdition.isEditionModeActive() ? "[ACTIF]" : "[--]"), "%.2f  <- Gachette D (RT) [%s]", launcherValue, gamepad1.right_trigger > 0.3 ? "ON" : "OFF");
 
             telemetry.addLine("--- Moteurs & Servos ---");
-            telemetry.addLine("leftDrive / rightDrive : Stick G (X/Y) | Edit: [B]");
+            telemetry.addLine("Avance : Stick G (Y) | Tourne : Stick D (X) | Edit: [B]");
             telemetry.addLine("intakeMotor            : Gachette G (LT)  | Edit: [X]");
             telemetry.addLine("launcherMotor          : Gachette D (RT)  | Edit: [Y]");
             telemetry.addLine("intakeServoL/R + windm.: Continu auto (aucun bouton)");
