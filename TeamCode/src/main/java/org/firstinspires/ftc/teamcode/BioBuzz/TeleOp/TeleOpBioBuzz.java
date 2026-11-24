@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.BioBuzz.TeleOp.EditionMode.Edition;
 import org.firstinspires.ftc.teamcode.BioBuzz.utils.packageImport;
 
-@TeleOp(name = "Test Edition Mode", group = "TeleOp")
+@TeleOp(name = "TeleOpBioBuzz final version", group = "TeleOp")
 public class TeleOpBioBuzz extends LinearOpMode {
 
     // Objets Edition pour les moteurs dont la puissance peut etre ajustee
