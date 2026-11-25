@@ -1,0 +1,194 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+public class RobotGoBilda {
+
+    // --- MOTEURS ET SERVOS ---
+    public DcMotor leftFront, leftRear, rightFront, rightRear;
+    public DcMotor intake, launcher, armMotor;
+    public Servo pince;
+
+    private LinearOpMode opMode;
+
+    // --- CONSTANTES GOBILDA (À ajuster selon vos pièces) ---
+    public static final double TICKS_PER_REV = 537.7;     // 537.7 = goBILDA 312 RPM (384.5 pour 435 RPM)
+    public static final double WHEEL_DIAMETER_CM = 9.6;   // 9.6 cm = roues goBILDA 96 mm
+    public static final double TICKS_PER_CM = TICKS_PER_REV / (WHEEL_DIAMETER_CM * Math.PI);
+
+    // Distance entre les roues gauches et droites du robot (en cm) pour les virages
+    public static final double TRACK_WIDTH_CM = 38.0;
+
+    // --- INITIALISATION ---
+    public RobotGoBilda(LinearOpMode opMode) {
+        this.opMode = opMode;
+        HardwareMap hw = opMode.hardwareMap;
+
+        // Récupération des 4 moteurs de roues (adaptez les noms à votre config !)
+        leftFront  = hw.get(DcMotor.class, "left_front");
+        leftRear   = hw.get(DcMotor.class, "left_rear");
+        rightFront = hw.get(DcMotor.class, "right_front");
+        rightRear  = hw.get(DcMotor.class, "right_rear");
+
+        // Mécanismes (mettez en commentaire // ceux que vous n'avez pas encore)
+        intake   = hw.get(DcMotor.class, "intake");
+        launcher = hw.get(DcMotor.class, "launcher");
+        armMotor = hw.get(DcMotor.class, "arm");
+        pince    = hw.get(Servo.class, "pince");
+
+        // Sens de rotation des moteurs (inverser le côté gauche)
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        // Freinage actif dès que la vitesse est à 0
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Remise à zéro des encodeurs
+        resetDriveEncoders();
+    }
+
+    // =========================================================================
+    // 1. AVANCER OU RECULER EN CENTIMÈTRES (runToCm)
+    // Exemple : robot.runToCm(60, 0.5); -> avance de 60 cm à 50% de vitesse
+    // Exemple : robot.runToCm(-30, 0.4); -> recule de 30 cm à 40% de vitesse
+    // =========================================================================
+    public void runToCm(double distanceCm, double speed) {
+        if (!opMode.opModeIsActive()) return;
+
+        int targetTicks = (int) (distanceCm * TICKS_PER_CM);
+
+        // Définir les nouvelles cibles à partir de la position actuelle
+        leftFront.setTargetPosition(leftFront.getCurrentPosition() + targetTicks);
+        leftRear.setTargetPosition(leftRear.getCurrentPosition() + targetTicks);
+        rightFront.setTargetPosition(rightFront.getCurrentPosition() + targetTicks);
+        rightRear.setTargetPosition(rightRear.getCurrentPosition() + targetTicks);
+
+        // Activer le mode RUN_TO_POSITION
+        setDriveMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Appliquer la vitesse (toujours positive)
+        setDrivePower(Math.abs(speed), Math.abs(speed));
+
+        // Attendre que les moteurs atteignent la cible (avec sécurité anti-blocage de 5s)
+        ElapsedTime timeout = new ElapsedTime();
+        while (opMode.opModeIsActive()
+                && timeout.seconds() < 5.0
+                && leftFront.isBusy() && rightFront.isBusy()) {
+            opMode.telemetry.addData("Déplacement (cm)", "%.1f cm", distanceCm);
+            opMode.telemetry.addData("Ticks restants", leftFront.getTargetPosition() - leftFront.getCurrentPosition());
+            opMode.telemetry.update();
+        }
+
+        // Arrêter proprement
+        stopDrive();
+        setDriveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    // =========================================================================
+    // 2. TOURNER SUR PLACE EN DEGRÉS (turnDegrees)
+    // Exemple : robot.turnDegrees(90, 0.4);  -> tourne de 90° à droite
+    // Exemple : robot.turnDegrees(-90, 0.4); -> tourne de 90° à gauche
+    // =========================================================================
+    public void turnDegrees(double degrees, double speed) {
+        if (!opMode.opModeIsActive()) return;
+
+        // Calcul de la distance que chaque roue doit parcourir sur le cercle de rotation
+        double arcCm = (Math.PI * TRACK_WIDTH_CM) * (degrees / 360.0);
+        int targetTicks = (int) (arcCm * TICKS_PER_CM);
+
+        // Côté gauche avance, côté droit recule (ou inversement si degrees est négatif)
+        leftFront.setTargetPosition(leftFront.getCurrentPosition() + targetTicks);
+        leftRear.setTargetPosition(leftRear.getCurrentPosition() + targetTicks);
+        rightFront.setTargetPosition(rightFront.getCurrentPosition() - targetTicks);
+        rightRear.setTargetPosition(rightRear.getCurrentPosition() - targetTicks);
+
+        setDriveMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setDrivePower(Math.abs(speed), Math.abs(speed));
+
+        ElapsedTime timeout = new ElapsedTime();
+        while (opMode.opModeIsActive()
+                && timeout.seconds() < 4.0
+                && leftFront.isBusy() && rightFront.isBusy()) {
+            opMode.telemetry.addData("Rotation", "%.0f degrés", degrees);
+            opMode.telemetry.update();
+        }
+
+        stopDrive();
+        setDriveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    // =========================================================================
+    // 3. DÉPLACER UN BRAS OU ASCENSEUR À UNE POSITION EN TICKS (armToTicks)
+    // =========================================================================
+    public void armToTicks(int targetTicks, double speed) {
+        if (!opMode.opModeIsActive()) return;
+
+        armMotor.setTargetPosition(targetTicks);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(Math.abs(speed));
+
+        ElapsedTime timeout = new ElapsedTime();
+        while (opMode.opModeIsActive() && timeout.seconds() < 3.0 && armMotor.isBusy()) {
+            opMode.telemetry.addData("Bras (ticks)", "%d / %d", armMotor.getCurrentPosition(), targetTicks);
+            opMode.telemetry.update();
+        }
+        armMotor.setPower(0);
+    }
+
+    // =========================================================================
+    // 4. FONCTIONS PRATIQUES POUR LES MÉCANISMES (Intake, Lanceur, Pince)
+    // =========================================================================
+    public void setIntake(double power) {
+        intake.setPower(power);
+    }
+
+    public void shootSeconds(double power, double seconds) {
+        launcher.setPower(power);
+        opMode.sleep((long) (seconds * 1000));
+        launcher.setPower(0);
+    }
+
+    public void setPince(double position) {
+        pince.setPosition(position); // Entre 0.0 et 1.0
+    }
+
+    // =========================================================================
+    // OUTILS INTERNES (Ne pas toucher)
+    // =========================================================================
+    public void resetDriveEncoders() {
+        setDriveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    private void setDriveMode(DcMotor.RunMode mode) {
+        leftFront.setMode(mode);
+        leftRear.setMode(mode);
+        rightFront.setMode(mode);
+        rightRear.setMode(mode);
+    }
+
+    private void setDrivePower(double left, double right) {
+        leftFront.setPower(left);
+        leftRear.setPower(left);
+        rightFront.setPower(right);
+        rightRear.setPower(right);
+    }
+
+    private void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+        leftFront.setZeroPowerBehavior(behavior);
+        leftRear.setZeroPowerBehavior(behavior);
+        rightFront.setZeroPowerBehavior(behavior);
+        rightRear.setZeroPowerBehavior(behavior);
+    }
+
+    public void stopDrive() {
+        setDrivePower(0, 0);
+    }
+}
